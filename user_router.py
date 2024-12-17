@@ -8,9 +8,26 @@ main_data_router = APIRouter()
 
 api = Ossapi(int(os.getenv("OSU_CLIENT_ID")), os.getenv("OSU_CLIENT_SECRET"))
 @main_data_router.get("/{name}")
-async def login(name: str):
+async def get_user_info(name: str):
     user = api.user(name, key=UserLookupKey.USERNAME)
 
+    response = {
+        "username": user.username,
+        "avatar_url": user.avatar_url,
+        "cover_url": user.cover_url,
+        "country_code": user.country_code,
+        "pp": user.statistics.pp,
+        "global_rank": user.statistics.global_rank,
+        "country_rank": user.statistics.country_rank,
+        "accuracy": user.statistics.hit_accuracy,
+        "level": user.statistics.level.current,
+        "level_progress": user.statistics.level.progress,
+    }
+    return response
+
+@main_data_router.get("/{name}/scores")
+async def get_scores(name: str):
+    user = api.user(name, key=UserLookupKey.USERNAME)
     scores = api.user_scores(user.id, type=ScoreType.BEST, mode=GameMode.OSU, limit=100)
 
     returned_scores = []
@@ -27,17 +44,4 @@ async def login(name: str):
         }
         returned_scores.append(formatted_score)
 
-    response = {
-        "username": user.username,
-        "avatar_url": user.avatar_url,
-        "cover_url": user.cover_url,
-        "country_code": user.country_code,
-        "pp": user.statistics.pp,
-        "global_rank": user.statistics.global_rank,
-        "country_rank": user.statistics.country_rank,
-        "accuracy": user.statistics.hit_accuracy,
-        "level": user.statistics.level.current,
-        "levelProgress": user.statistics.level.progress,
-        "scores": returned_scores
-    }
-    return response
+    return returned_scores
