@@ -29,6 +29,7 @@ async def get_user_info(name: str):
 async def get_scores(name: str):
     user = api.user(name, key=UserLookupKey.USERNAME)
     scores = api.user_scores(user.id, type=ScoreType.BEST, mode=GameMode.OSU, limit=100)
+    print(scores[0])
 
     returned_scores = []
     for score in scores:
@@ -36,7 +37,10 @@ async def get_scores(name: str):
         formatted_score = {
             "accuracy": score.accuracy * 100,
             "score": score.total_score,
-            "beatmap_id": score.beatmap.id,
+            "beatmap_url": score.beatmap.url,
+            "title": score.beatmapset.title_unicode,
+            "artist": score.beatmapset.artist_unicode,
+            "version": score.beatmap.version,
             "mods": mods,
             "pp": score.pp,
             "max_combo": score.max_combo,
