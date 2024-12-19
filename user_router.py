@@ -16,6 +16,14 @@ async def get_user_info(name: str):
         "avatar_url": user.avatar_url,
         "cover_url": user.cover_url,
         "country_code": user.country_code,
+        "rank_history": user.rank_history.data,
+        "grade_counts": {
+            "SS": user.statistics.grade_counts.ss,
+            "SSH": user.statistics.grade_counts.ssh,
+            "S": user.statistics.grade_counts.s,
+            "SH": user.statistics.grade_counts.sh,
+            "A": user.statistics.grade_counts.a,
+        },
         "pp": user.statistics.pp,
         "global_rank": user.statistics.global_rank,
         "country_rank": user.statistics.country_rank,
@@ -29,7 +37,6 @@ async def get_user_info(name: str):
 async def get_scores(name: str):
     user = api.user(name, key=UserLookupKey.USERNAME)
     scores = api.user_scores(user.id, type=ScoreType.BEST, mode=GameMode.OSU, limit=100)
-    print(scores[0])
 
     returned_scores = []
     for score in scores:
