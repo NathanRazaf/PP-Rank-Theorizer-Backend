@@ -16,6 +16,17 @@ async def get_user_info(name: str):
         "avatar_url": user.avatar_url,
         "cover_url": user.cover_url,
         "country_code": user.country_code,
+        "country_name": user.country.name,
+        "play_time": user.statistics.play_time,
+        "statistics": {
+            "accuracy": user.statistics.hit_accuracy,
+            "ranked_score": user.statistics.ranked_score,
+            "total_score": user.statistics.total_score,
+            "replays_watched": user.statistics.replays_watched_by_others,
+            "total_hits": user.statistics.total_hits,
+            "maximum_combo": user.statistics.maximum_combo,
+            "play_count": user.statistics.play_count,
+        },
         "rank_history": user.rank_history.data,
         "grade_counts": {
             "SS": user.statistics.grade_counts.ss,
@@ -27,7 +38,6 @@ async def get_user_info(name: str):
         "pp": user.statistics.pp,
         "global_rank": user.statistics.global_rank,
         "country_rank": user.statistics.country_rank,
-        "accuracy": user.statistics.hit_accuracy,
         "level": user.statistics.level.current,
         "level_progress": user.statistics.level.progress,
     }
