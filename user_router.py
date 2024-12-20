@@ -10,14 +10,15 @@ api = Ossapi(int(os.getenv("OSU_CLIENT_ID")), os.getenv("OSU_CLIENT_SECRET"))
 @main_data_router.get("/{name}")
 async def get_user_info(name: str):
     user = api.user(name, key=UserLookupKey.USERNAME)
-
     response = {
         "username": user.username,
         "avatar_url": user.avatar_url,
         "cover_url": user.cover_url,
         "country_code": user.country_code,
         "country_name": user.country.name,
+        "num_medals": len(user.user_achievements),
         "play_time": user.statistics.play_time,
+        "support_level": user.support_level,
         "statistics": {
             "accuracy": user.statistics.hit_accuracy,
             "ranked_score": user.statistics.ranked_score,
