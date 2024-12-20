@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from ossapi import Ossapi, UserLookupKey, ScoreType, GameMode
 from dotenv import load_dotenv
 import os
@@ -7,9 +7,20 @@ load_dotenv()
 main_data_router = APIRouter()
 
 api = Ossapi(int(os.getenv("OSU_CLIENT_ID")), os.getenv("OSU_CLIENT_SECRET"))
+
 @main_data_router.get("/{name}")
 async def get_user_info(name: str):
-    user = api.user(name, key=UserLookupKey.USERNAME)
+    try:
+        user = api.user(name, key=UserLookupKey.USERNAME)
+    except Exception as e:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "message": f"User '{name}' not found",
+                "error": str(e)
+            }
+        )
+
     response = {
         "username": user.username,
         "avatar_url": user.avatar_url,
@@ -46,8 +57,30 @@ async def get_user_info(name: str):
 
 @main_data_router.get("/{name}/scores")
 async def get_scores(name: str):
-    user = api.user(name, key=UserLookupKey.USERNAME)
-    scores = api.user_scores(user.id, type=ScoreType.BEST, mode=GameMode.OSU, limit=100)
+    try:
+        user = api.user(name, key=UserLookupKey.USERNAME)
+    except Exception as e:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "message": f"User '{name}' not found",
+                "error": str(e)
+            }
+        )
+
+    try:
+        scores = api.user_scores(user.id, type=ScoreType.BEST, mode=GameMode.OSU, limit=100)
+    except Exception as e:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "message": f"Could not retrieve scores for user '{name}'",
+                "error": str(e)
+            }
+        )
+
+    if not scores:
+        return []
 
     returned_scores = []
     for score in scores:
