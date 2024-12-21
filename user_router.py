@@ -88,6 +88,7 @@ async def get_scores(name: str):
         formatted_score = {
             "accuracy": score.accuracy * 100,
             "score": score.total_score,
+            "id": score.id,
             "beatmap_url": score.beatmap.url,
             "title": score.beatmapset.title_unicode,
             "artist": score.beatmapset.artist_unicode,
