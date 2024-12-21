@@ -90,14 +90,16 @@ async def get_scores(name: str):
             "score": score.total_score,
             "id": score.id,
             "beatmap_url": score.beatmap.url,
-            "title": score.beatmapset.title_unicode,
-            "artist": score.beatmapset.artist_unicode,
+            "title": score.beatmapset.title,
+            "artist": score.beatmapset.artist,
             "version": score.beatmap.version,
             "date": score.ended_at,
             "mods": mods,
             "pp": score.pp,
             "max_combo": score.max_combo,
             "grade": score.rank.name,
+            "weight": score.weight.percentage,
+            "actual_pp": score.weight.pp,
         }
         returned_scores.append(formatted_score)
 
