@@ -92,6 +92,7 @@ async def get_scores(name: str):
             "title": score.beatmapset.title_unicode,
             "artist": score.beatmapset.artist_unicode,
             "version": score.beatmap.version,
+            "date": score.ended_at,
             "mods": mods,
             "pp": score.pp,
             "max_combo": score.max_combo,
