@@ -86,7 +86,16 @@ async def get_scores(name: str):
     for score in scores:
         mods = [mod.acronym for mod in score.mods]
         formatted_score = {
+            "is_true_score": True,
             "accuracy": score.accuracy * 100,
+            "total_hits": (score.statistics.great or 0) +
+                          (score.statistics.good or 0) +
+                          (score.statistics.ok or 0) +
+                          (score.statistics.meh or 0) +
+                          (score.statistics.perfect or 0) +
+                          (score.statistics.small_tick_hit or 0) +
+                          (score.statistics.large_tick_hit or 0) +
+                          (score.statistics.slider_tail_hit or 0),
             "score": score.total_score,
             "id": score.id,
             "beatmap_url": score.beatmap.url,
