@@ -80,6 +80,14 @@ async def new_score(params: FullUserParams):
         # Sort scores by pp in descending order (highest pp first)
         scores.sort(key=lambda x: x.pp, reverse=True)
 
+        # Check if score is worth enough pp to be in top 100
+        if len(scores) >= 100 and new_score_copy.pp <= scores[99].pp:
+            return {
+                "profile": profile,
+                "scores": scores
+            }
+
+
         # Flag to track if we're replacing an existing score
         replaced_score = None
 
