@@ -131,7 +131,6 @@ async def new_score(params: FullUserParams):
         # Update stats based on whether we're replacing a score or adding a new one
         if replaced_score:
             # Subtract old score's stats before adding new ones
-            profile.statistics.ranked_score -= replaced_score.score
             profile.statistics.total_hits -= replaced_score.max_combo
             # Decrement the grade count for the old score
             if replaced_score.grade == "SS":
