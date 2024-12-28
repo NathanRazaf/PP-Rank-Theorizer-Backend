@@ -1,7 +1,8 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from starlette.responses import JSONResponse
 
+from search_router import search_router
 from user_router import main_data_router
 from pp_calc_router import pp_data_router
 from score_simulator_router import score_simulator_router
@@ -27,8 +28,8 @@ app.add_middleware(
 )
 app.include_router(main_data_router, prefix="/user")
 app.include_router(pp_data_router, prefix="/pp")
-
 app.include_router(score_simulator_router, prefix="/score")
+app.include_router(search_router, prefix="/search")
 @app.get("/")
 async def root():
     return {"message": "Hello World"}

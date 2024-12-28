@@ -8,7 +8,9 @@ from typing import Optional
 
 from ossapi import Ossapi
 from pydantic import BaseModel
+from dotenv import load_dotenv
 
+load_dotenv()
 pp_data_router = APIRouter()
 
 calculator_url = "http://osu-tools-calculator-api.org"

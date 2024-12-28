@@ -1,9 +1,12 @@
 import os
 
+from dotenv import load_dotenv
 from fastapi import APIRouter, HTTPException
 from ossapi import Ossapi
 from pydantic import BaseModel
 import httpx
+
+load_dotenv()
 
 from pp_calc_router import get_rank_from_pp
 
