@@ -99,6 +99,8 @@ async def new_score(params: FullUserParams):
                     replaced_score = score
                     # Replace the score
                     scores[i] = new_score_copy
+                    # Reorder the scores list
+                    scores.sort(key=lambda x: x.pp, reverse=True)
                 break
         else:
             # If no existing score found, add the new score at the right index
