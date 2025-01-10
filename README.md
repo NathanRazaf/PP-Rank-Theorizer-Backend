@@ -1,3 +1,3 @@
-# Osu-PP-Theorizer-Backend
+# PP-Rank-Theorizer-Backend
 
-The backend for the Osu PP Theorizer web app that I'm currently building in my other repo. 
+The backend for the PP-Rank Theorizer web app that I'm currently building in my other repo. 
