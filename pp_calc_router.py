@@ -19,7 +19,7 @@ API_KEY = os.getenv("TOOLS_API_KEY")
 api = Ossapi(int(os.getenv("OSU_CLIENT_ID")), os.getenv("OSU_CLIENT_SECRET"))
 
 @pp_calc_router.get("/to-pp")
-async def get_pp_for_rank(rank: int, mode: Optional[int] = 0):
+async def convert_rank_to_pp(rank: int, mode: Optional[int] = 0):
     try:
         async with httpx.AsyncClient() as client:
             response = await client.get(
@@ -48,7 +48,7 @@ async def get_pp_for_rank(rank: int, mode: Optional[int] = 0):
         )
 
 @pp_calc_router.get("/to-rank")
-async def get_rank_from_pp(pp: float, mode: Optional[int] = 0):
+async def convert_pp_to_rank(pp: float, mode: Optional[int] = 0):
     try:
         async with httpx.AsyncClient() as client:
             response = await client.get(

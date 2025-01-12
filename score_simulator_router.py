@@ -1,3 +1,4 @@
+import math
 import os
 import random
 from datetime import datetime, timezone
@@ -11,7 +12,7 @@ import httpx
 
 load_dotenv()
 
-from pp_calc_router import get_rank_from_pp
+from pp_calc_router import convert_pp_to_rank
 
 score_simulator_router = APIRouter()
 
@@ -213,13 +214,18 @@ async def new_score(params: FullUserParams):
             score.weight *= 100
 
         # New accuracy
-        rate = 0.951
+        rate = 0.95
         acc = 0
-        div = 0
         for i, score in enumerate(scores):
             acc += score.accuracy * (rate ** i)
-            div += rate ** i
-        acc /= div
+
+        # Normalize accuracy (formula taken directly from osu! codebase)
+        acc *= 100 / (20 * (1 - math.pow(rate, len(scores))))
+
+        # Handle floating point precision edge cases
+        clamp = lambda x, y, z: max(y, min(z, x))
+        acc = clamp(acc, 0, 100)
+
         profile.statistics.accuracy = acc
 
         # Update stats based on whether we're replacing a score or adding a new one
@@ -262,7 +268,7 @@ async def new_score(params: FullUserParams):
         profile.pp = sum(score.actual_pp for score in scores)
 
         # New global rank
-        rank_json = await get_rank_from_pp(profile.pp)
+        rank_json = await convert_pp_to_rank(profile.pp)
         rank = rank_json["rank"]
         profile.global_rank = rank
         profile.rank_history[len(profile.rank_history) - 1] = rank
