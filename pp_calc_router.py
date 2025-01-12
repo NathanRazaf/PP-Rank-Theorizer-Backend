@@ -1,13 +1,10 @@
 import os
-import random
-from datetime import datetime, timezone
 
 from fastapi import APIRouter, HTTPException
 import httpx
 from typing import Optional
 
 from ossapi import Ossapi
-from pydantic import BaseModel
 from dotenv import load_dotenv
 
 load_dotenv()
