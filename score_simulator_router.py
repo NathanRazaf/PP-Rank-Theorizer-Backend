@@ -1,4 +1,7 @@
 import os
+import random
+from datetime import datetime, timezone
+from typing import Optional
 
 from dotenv import load_dotenv
 from fastapi import APIRouter, HTTPException
@@ -70,6 +73,92 @@ class FullUserParams(BaseModel):
     profile: UserProfileParams
     scores: list[UserScore]
     new_score: UserScore
+
+
+class ScoreParams(BaseModel):
+    scoreId: Optional[str] = None
+    beatmapId: Optional[int] = None
+    mods: list[str] = []
+    accPercent: Optional[float] = None
+    n50: Optional[int] = None
+    n100: Optional[int] = None
+    combo: Optional[int] = None
+    nmiss: Optional[int] = None
+    sliderTailMiss: Optional[int] = 0
+    largeTickMiss: Optional[int] = 0
+
+HELPER_URL = "https://that-game-tools-api-production.up.railway.app"
+API_KEY = os.getenv("TOOLS_API_KEY")
+
+@score_simulator_router.post("/simulate")
+async def simulate_score(params: ScoreParams):
+    try:
+        async with httpx.AsyncClient() as client:
+            if params.scoreId:
+                # If scoreId is provided, just forward it to the calculator
+                response = await client.post(
+                    f"{HELPER_URL}/simulate/new_score",
+                    json={"scoreId": params.scoreId},
+                    headers={"x-api-key": API_KEY}
+                )
+            else:
+                # Forward all other parameters
+                calculator_params = {
+                    "beatmapId": params.beatmapId,
+                    "mods": params.mods,
+                    "accPercent": params.accPercent,
+                    "n50": params.n50,
+                    "n100": params.n100,
+                    "combo": params.combo,
+                    "nmiss": params.nmiss,
+                    "sliderTailMiss": params.sliderTailMiss,
+                    "largeTickMiss": params.largeTickMiss
+                }
+                response = await client.post(
+                    f"{HELPER_URL}/simulate/new_score",
+                    json=calculator_params,
+                    headers={"x-api-key": API_KEY}
+                )
+
+            if response.status_code != 200:
+                raise HTTPException(
+                    status_code=response.status_code,
+                    detail=f"Calculator API error: {response.text}"
+                )
+
+            r = response.json()
+
+            beatmap = api.beatmap(r["beatmap_id"])
+
+            returned_score = {
+                "is_true_score": False,
+                "accuracy": r["accuracy"],
+                "score": 0,
+                "id": random.randint(0, 1000000),
+                "beatmap_url": f'https://osu.ppy.sh/beatmaps/{r["beatmap_id"]}',
+                "title": beatmap.beatmapset().title,
+                "artist": beatmap.beatmapset().artist,
+                "version": beatmap.version,
+                "date": datetime.now(timezone.utc),
+                "mods": params.mods,
+                "pp": r["pp"],
+                "max_combo": r["combo"],
+                "grade": r["grade"],
+            }
+
+            return returned_score
+
+    except httpx.RequestError as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error communicating with calculator API: {str(e)}"
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Unexpected error: {str(e)}"
+        )
+
 
 
 @score_simulator_router.post("/update")
