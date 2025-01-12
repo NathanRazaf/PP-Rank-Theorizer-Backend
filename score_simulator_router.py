@@ -207,17 +207,16 @@ async def new_score(params: FullUserParams):
         # Truncate the scores list to 100 scores
         scores = scores[:100]
 
-        # Recalculate the weight and actual pp for all scores
+        # Recalculate the weight and actual pp for all scores, and update accuracy
+        rate = 0.95
+        acc = 0
+        factor = 1
         for i, score in enumerate(scores):
             score.weight = 0.95 ** i
             score.actual_pp = score.pp * score.weight
             score.weight *= 100
-
-        # New accuracy
-        rate = 0.95
-        acc = 0
-        for i, score in enumerate(scores):
-            acc += score.accuracy * (rate ** i)
+            acc += score.accuracy/100 * factor
+            factor *= rate
 
         # Normalize accuracy (formula taken directly from osu! codebase)
         acc *= 100 / (20 * (1 - math.pow(rate, len(scores))))
