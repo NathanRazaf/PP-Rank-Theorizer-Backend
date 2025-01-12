@@ -21,10 +21,10 @@ async def validation_exception_handler(exc: RequestValidationError):
 # CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allows all origins
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=["https://osu-pp-theorizer.netlify.app/"],  # Only allow the frontend to access the API
+    allow_credentials=True, # Allow cookies
+    allow_methods=["*"], # Allow all methods
+    allow_headers=["*"], # Allow all headers
 )
 app.include_router(user_data_router, prefix="/user")
 app.include_router(pp_calc_router, prefix="/convert")
