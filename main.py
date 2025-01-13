@@ -22,7 +22,7 @@ async def validation_exception_handler(exc: RequestValidationError):
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://osu-pp-theorizer.netlify.app/",
+        "https://osu-pp-theorizer.netlify.app",
         "http://localhost:5173",
                    ],  # Only allow the frontend and the React local server to access the API
     allow_credentials=True, # Allow cookies
