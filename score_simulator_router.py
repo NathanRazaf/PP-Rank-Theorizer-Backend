@@ -119,6 +119,8 @@ async def simulate_score(params: ScoreParams):
                     "sliderTailMiss": params.sliderTailMiss,
                     "largeTickMiss": params.largeTickMiss
                 }
+                calculator_params = {k: v for k, v in calculator_params.items() if v is not None}
+                print(calculator_params)
                 response = await client.post(
                     f"{HELPER_URL}/simulate/new_score",
                     json=calculator_params,
