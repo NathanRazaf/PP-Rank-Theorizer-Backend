@@ -2,11 +2,13 @@ from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from starlette.responses import JSONResponse
 
-from search_router import search_router
-from user_data_router import user_data_router
-from pp_calc_router import pp_calc_router
-from score_simulator_router import score_simulator_router
+from routers.search_router import search_router
+from routers.user_data_router import user_data_router
+from routers.pp_calc_router import pp_calc_router
+from routers.score_simulator_router import score_simulator_router
 from fastapi.middleware.cors import CORSMiddleware
+
+from routers.user_update_router import user_update_router
 
 app = FastAPI()
 
@@ -30,6 +32,7 @@ app.add_middleware(
     allow_headers=["*"], # Allow all headers
 )
 app.include_router(user_data_router, prefix="/user")
+app.include_router(user_update_router, prefix="/update")
 app.include_router(pp_calc_router, prefix="/convert")
 app.include_router(score_simulator_router, prefix="/score")
 app.include_router(search_router, prefix="/search")
