@@ -1,5 +1,8 @@
+import os
+
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
+from ossapi import Ossapi, ScoreType, GameMode
 from starlette.responses import JSONResponse
 
 from routers.search_router import search_router
@@ -44,3 +47,51 @@ async def root():
 @app.get("/hello/{name}")
 async def say_hello(name: str):
     return {"message": f"Hello {name}"}
+
+@app.get("/osu-test-test-test/{name}")
+async def osu_test(name: str):
+    api = Ossapi(int(os.getenv("OSU_CLIENT_ID")), os.getenv("OSU_CLIENT_SECRET"))
+
+    user = api.user(name)
+
+    user_scores = api.user_scores(user.id, type=ScoreType.BEST, limit=5, mode=GameMode.OSU)
+
+    print(user_scores)
+
+    scores = []
+
+    for score in user_scores:
+        scores.append({
+            "accuracy": score.beatmap.accuracy,
+            "ar": score.beatmap.ar,
+            "cs": score.beatmap.cs,
+            "drain": score.beatmap.drain,
+            "difficulty_rating": score.beatmap.difficulty_rating,
+            "score": {
+                "accuracy": score.accuracy * 100,
+                "score": score.total_score,
+            },
+            "beatmap": {
+                "id": score.beatmap.id,
+                "url": score.beatmap.url,
+                "cover": score.beatmapset.covers.cover_2x,
+                "title": score.beatmapset.title,
+                "artist": score.beatmapset.artist,
+                "version": score.beatmap.version,
+                "bpm": score.beatmap.bpm,
+                "playcount": score.beatmap.playcount,
+                "pass_percentage": score.beatmap.passcount / score.beatmap.playcount * 100,
+            }
+        })
+
+    return {
+        "user": {
+            "name": user.username,
+            "id": user.id,
+            "avatar_url": user.avatar_url,
+            "cover_url": user.cover_url,
+            "country_code": user.country_code,
+            "country_name": user.country.name,
+        },
+        "scores": scores,
+    }

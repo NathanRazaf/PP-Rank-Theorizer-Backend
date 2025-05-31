@@ -8,10 +8,10 @@ user_data_router = APIRouter()
 
 api = Ossapi(int(os.getenv("OSU_CLIENT_ID")), os.getenv("OSU_CLIENT_SECRET"))
 
-@user_data_router.get("/{name}")
-async def get_user_info(name: str):
+
+async def get_user_info(name: str, game_mode: GameMode = GameMode.OSU):
     try:
-        user = api.user(name, key=UserLookupKey.USERNAME)
+        user = api.user(name, key=UserLookupKey.USERNAME, mode=game_mode)
     except Exception as e:
         raise HTTPException(
             status_code=404,
@@ -21,8 +21,11 @@ async def get_user_info(name: str):
             }
         )
 
+
     response = {
+        "id": user.id,
         "username": user.username,
+        "preferred_mode": user.playmode,
         "avatar_url": user.avatar_url,
         "cover_url": user.cover_url,
         "country_code": user.country_code,
@@ -39,7 +42,7 @@ async def get_user_info(name: str):
             "maximum_combo": user.statistics.maximum_combo,
             "play_count": user.statistics.play_count,
         },
-        "rank_history": user.rank_history.data,
+        "rank_history": user.rank_history.data if user.rank_history else [],
         "grade_counts": {
             "SS": user.statistics.grade_counts.ss,
             "SSH": user.statistics.grade_counts.ssh,
@@ -55,8 +58,8 @@ async def get_user_info(name: str):
     }
     return response
 
-@user_data_router.get("/{name}/scores")
-async def get_scores(name: str):
+
+async def get_scores(name: str, game_mode: GameMode = GameMode.OSU):
     try:
         user = api.user(name, key=UserLookupKey.USERNAME)
     except Exception as e:
@@ -69,7 +72,7 @@ async def get_scores(name: str):
         )
 
     try:
-        scores = api.user_scores(user.id, type=ScoreType.BEST, mode=GameMode.OSU, limit=100)
+        scores = api.user_scores(user.id, type=ScoreType.BEST, mode=game_mode, limit=100)
     except Exception as e:
         raise HTTPException(
             status_code=404,
@@ -113,3 +116,39 @@ async def get_scores(name: str):
         returned_scores.append(formatted_score)
 
     return returned_scores
+
+
+
+@user_data_router.get("/info/{name}/osu")
+async def get_user_info_osu(name: str):
+    return await get_user_info(name, GameMode.OSU)
+
+@user_data_router.get("/info/{name}/taiko")
+async def get_user_info_taiko(name: str):
+    return await get_user_info(name, GameMode.TAIKO)
+
+@user_data_router.get("/info/{name}/catch")
+async def get_user_info_fruits(name: str):
+    return await get_user_info(name, GameMode.CATCH)
+
+@user_data_router.get("/info/{name}/mania")
+async def get_user_info_mania(name: str):
+    return await get_user_info(name, GameMode.MANIA)
+
+
+
+@user_data_router.get("/scores/{name}/osu")
+async def get_user_scores_osu(name: str):
+    return await get_scores(name, GameMode.OSU)
+
+@user_data_router.get("/scores/{name}/taiko")
+async def get_user_scores_taiko(name: str):
+    return await get_scores(name, GameMode.TAIKO)
+
+@user_data_router.get("/scores/{name}/catch")
+async def get_user_scores_fruits(name: str):
+    return await get_scores(name, GameMode.CATCH)
+
+@user_data_router.get("/scores/{name}/mania")
+async def get_user_scores_mania(name: str):
+    return await get_scores(name, GameMode.MANIA)

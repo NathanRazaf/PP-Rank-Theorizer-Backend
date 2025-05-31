@@ -20,7 +20,7 @@ class FullUserParamsDel(BaseModel):
     score_id: int
 
 @user_update_router.post("/new")
-async def new_score(params: FullUserParams):
+async def new_score(params: FullUserParams, mode: int = 0):
     try:
         # Copy the user profile and scores
         profile = params.profile.model_copy()
@@ -62,7 +62,7 @@ async def new_score(params: FullUserParams):
                     break
             scores.insert(index, new_score_copy)
 
-        await update_profile_and_scores(profile, scores)
+        await update_profile_and_scores(profile, scores, mode)
 
         # Update specific stats based on whether we're replacing a score or adding a new one
         if replaced_score:
@@ -102,7 +102,7 @@ async def new_score(params: FullUserParams):
 
 
 @user_update_router.delete("/new")
-async def delete_score(params: FullUserParamsDel):
+async def delete_score(params: FullUserParamsDel, mode: int = 0):
     try:
         # Copy the user profile and scores
         profile = params.profile.model_copy()
@@ -115,7 +115,7 @@ async def delete_score(params: FullUserParamsDel):
                 scores.pop(i)
                 break
 
-        await update_profile_and_scores(profile, scores)
+        await update_profile_and_scores(profile, scores, mode)
 
         # Subtract old score's stats
         if score_to_delete:
@@ -147,7 +147,7 @@ def remove_score_grade_from_profile(profile, score):
     elif score.grade == "A":
         profile.grade_counts.A -= 1
 
-async def update_profile_and_scores(profile, scores):
+async def update_profile_and_scores(profile, scores, mode=0):
     # Sort by pp first
     scores.sort(key=lambda x: x.pp, reverse=True)
 
@@ -191,7 +191,7 @@ async def update_profile_and_scores(profile, scores):
     profile.pp = sum(score.actual_pp for score in scores) + bonus_pp
 
     # New global rank
-    rank_json = await convert_pp_to_rank(profile.pp)
+    rank_json = await convert_pp_to_rank(profile.pp, mode)
     rank = rank_json["rank"]
     profile.global_rank = rank
     profile.rank_history[len(profile.rank_history) - 1] = rank
